@@ -1,0 +1,70 @@
+# ---- Claude / AI assistant files (project-local, not versioned) ----
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+AGENTS.md
+.cursorrules
+
+# ---- Build output ----
+build/
+out/
+cmake-build-*/
+install/
+Testing/
+
+# ---- CMake generated ----
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+Makefile
+
+# ---- Qt generated ----
+moc_*.cpp
+moc_*.h
+ui_*.h
+qrc_*.cpp
+*.moc
+*.qmlc
+*.jsc
+.qmake.stash
+*.pro.user
+*.pro.user.*
+
+# ---- MSVC / Visual Studio ----
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.exp
+*.lib
+*.dll
+*.exe
+
+# ---- Dependencies ----
+vcpkg_installed/
+vcpkg/
+_deps/
+
+# ---- Secrets: LLM API keys must never be committed (Phase 2) ----
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+api_keys.*
+
+# ---- OS noise ----
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
