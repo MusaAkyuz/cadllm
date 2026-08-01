@@ -1,7 +1,9 @@
 #include <iostream>
 
+#include "version.h"
+
 int main()
 {
-    std::cout << "cadllm toolchain OK" << std::endl;
+    std::cout << "cadllm " << appVersion() << std::endl;
     return 0;
 }
