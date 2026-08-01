@@ -1,9 +1,16 @@
-#include <iostream>
+#include <QApplication>
+#include <QWidget>
 
 #include "version.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::cout << "cadllm " << appVersion() << std::endl;
-    return 0;
+    QApplication app(argc, argv);
+
+    QWidget window;
+    window.setWindowTitle(QString("cadllm %1").arg(appVersion()));
+    window.resize(800, 600);
+    window.show();
+
+    return app.exec();
 }
