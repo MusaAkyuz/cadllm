@@ -9,14 +9,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(OpenCASCADE CONFIG REQUIRED)
 
 add_executable(cadllm
     src/main.cpp
     src/version.cpp
     src/mainwindow.cpp
+    src/box_demo.cpp
 )
 
-target_link_libraries(cadllm PRIVATE Qt6::Widgets)
+target_include_directories(cadllm PRIVATE ${OpenCASCADE_INCLUDE_DIR})
+target_link_libraries(cadllm PRIVATE Qt6::Widgets ${OpenCASCADE_LIBRARIES})
 
 if(WIN32)
     find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${Qt6_DIR}/../../../bin")
