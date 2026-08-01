@@ -1,5 +1,8 @@
 #include "occtviewer.h"
 
+#include <QMouseEvent>
+#include <QWheelEvent>
+
 #include <AIS_Shape.hxx>
 #include <Aspect_DisplayConnection.hxx>
 #include <BRepPrimAPI_MakeBox.hxx>
@@ -67,4 +70,54 @@ void OcctViewer::resizeEvent(QResizeEvent*)
     if (!m_view.IsNull()) {
         m_view->MustBeResized();
     }
+}
+
+QPoint OcctViewer::devicePos(const QPointF& logicalPos) const
+{
+    const qreal ratio = devicePixelRatioF();
+    return QPoint(qRound(logicalPos.x() * ratio), qRound(logicalPos.y() * ratio));
+}
+
+void OcctViewer::mousePressEvent(QMouseEvent* event)
+{
+    if (m_view.IsNull()) {
+        return;
+    }
+
+    m_lastPos = devicePos(event->position());
+    if (event->button() == Qt::LeftButton) {
+        m_view->StartRotation(m_lastPos.x(), m_lastPos.y());
+    }
+}
+
+void OcctViewer::mouseMoveEvent(QMouseEvent* event)
+{
+    if (m_view.IsNull()) {
+        return;
+    }
+
+    const QPoint pos = devicePos(event->position());
+    if (event->buttons() & Qt::LeftButton) {
+        m_view->Rotation(pos.x(), pos.y());
+    } else if (event->buttons() & Qt::MiddleButton) {
+        // OCCT's Y axis points up, Qt's points down, hence the inverted dy.
+        m_view->Pan(pos.x() - m_lastPos.x(), m_lastPos.y() - pos.y());
+    }
+    m_lastPos = pos;
+}
+
+void OcctViewer::wheelEvent(QWheelEvent* event)
+{
+    if (m_view.IsNull()) {
+        return;
+    }
+
+    const int delta = event->angleDelta().y();
+    if (delta == 0) {
+        return;
+    }
+
+    const QPoint pos = devicePos(event->position());
+    m_view->StartZoomAtPoint(pos.x(), pos.y());
+    m_view->ZoomAtPoint(0, 0, delta > 0 ? 100 : -100, 0);
 }

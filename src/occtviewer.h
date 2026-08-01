@@ -22,10 +22,18 @@ protected:
     void showEvent(QShowEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
 private:
     void initViewer();
 
+    // Qt reports mouse positions in logical pixels, OCCT expects device
+    // pixels. These differ whenever Windows display scaling is not 100%.
+    QPoint devicePos(const QPointF& logicalPos) const;
+
     Handle(AIS_InteractiveContext) m_context;
     Handle(V3d_View) m_view;
+    QPoint m_lastPos;
 };
