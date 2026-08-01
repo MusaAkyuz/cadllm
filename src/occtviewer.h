@@ -33,7 +33,15 @@ private:
     // pixels. These differ whenever Windows display scaling is not 100%.
     QPoint devicePos(const QPointF& logicalPos) const;
 
+    // The native window is still at its default size when showEvent fires, so
+    // the view must be re-sized once Qt has laid the widget out for real.
+    // Comparing against the last applied size is more reliable than trusting
+    // resizeEvent, which can fire before the view exists.
+    void syncViewSize();
+
     Handle(AIS_InteractiveContext) m_context;
     Handle(V3d_View) m_view;
     QPoint m_lastPos;
+    QSize m_appliedSize;
+    bool m_didInitialFit = false;
 };

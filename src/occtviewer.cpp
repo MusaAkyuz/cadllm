@@ -50,26 +50,54 @@ void OcctViewer::initViewer()
     m_context->Display(aisBox, AIS_Shaded, 0, Standard_False);
 
     m_view->SetProj(V3d_XposYnegZpos);
-    m_view->FitAll();
+}
+
+void OcctViewer::syncViewSize()
+{
+    if (m_view.IsNull() || m_view->Window().IsNull()) {
+        return;
+    }
+
+    Standard_Integer w = 0;
+    Standard_Integer h = 0;
+    m_view->Window()->Size(w, h);
+    if (w <= 0 || h <= 0) {
+        return;
+    }
+
+    const QSize current(w, h);
+    if (current == m_appliedSize) {
+        return;
+    }
+    m_appliedSize = current;
+
+    m_view->MustBeResized();
+
+    // Frame the model once the viewport finally has its real size; fitting
+    // earlier would compute the zoom against the default 100x30 window.
+    if (!m_didInitialFit) {
+        m_view->FitAll();
+        m_didInitialFit = true;
+    }
 }
 
 void OcctViewer::showEvent(QShowEvent* event)
 {
     QWidget::showEvent(event);
     initViewer();
+    syncViewSize();
 }
 
 void OcctViewer::paintEvent(QPaintEvent*)
 {
     initViewer();
+    syncViewSize();
     m_view->Redraw();
 }
 
 void OcctViewer::resizeEvent(QResizeEvent*)
 {
-    if (!m_view.IsNull()) {
-        m_view->MustBeResized();
-    }
+    syncViewSize();
 }
 
 QPoint OcctViewer::devicePos(const QPointF& logicalPos) const
