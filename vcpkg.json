@@ -1,0 +1,7 @@
+{
+    "name": "cadllm",
+    "version": "0.0.1",
+    "dependencies": [
+        "opencascade"
+    ]
+}
