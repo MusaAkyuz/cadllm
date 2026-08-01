@@ -1,8 +1,10 @@
 #pragma once
 
+#include <QVector3D>
 #include <QWidget>
 
 #include <AIS_InteractiveContext.hxx>
+#include <AIS_Shape.hxx>
 #include <V3d_View.hxx>
 
 // Hosts an OCCT 3D view. OCCT owns the OpenGL context and draws straight into
@@ -18,12 +20,17 @@ public:
     // which is required when OCCT renders directly onto the native window.
     QPaintEngine* paintEngine() const override { return nullptr; }
 
+signals:
+    void faceSelected(double area, const QVector3D& normal);
+    void selectionCleared();
+
 protected:
     void showEvent(QShowEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
 
 private:
@@ -39,9 +46,13 @@ private:
     // resizeEvent, which can fire before the view exists.
     void syncViewSize();
 
+    void reportSelection();
+
     Handle(AIS_InteractiveContext) m_context;
     Handle(V3d_View) m_view;
+    Handle(AIS_Shape) m_shape;
     QPoint m_lastPos;
+    QPoint m_pressPos;
     QSize m_appliedSize;
     bool m_didInitialFit = false;
 };
