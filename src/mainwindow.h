@@ -2,6 +2,7 @@
 
 #include <QWidget>
 
+class OcctViewer;
 class QPushButton;
 
 class MainWindow : public QWidget
@@ -15,5 +16,6 @@ private slots:
     void onCloseClicked();
 
 private:
+    OcctViewer* m_viewer;
     QPushButton* m_closeButton;
 };

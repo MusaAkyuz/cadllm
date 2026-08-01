@@ -15,7 +15,7 @@ add_executable(cadllm
     src/main.cpp
     src/version.cpp
     src/mainwindow.cpp
-    src/box_demo.cpp
+    src/occtviewer.cpp
 )
 
 target_include_directories(cadllm PRIVATE ${OpenCASCADE_INCLUDE_DIR})

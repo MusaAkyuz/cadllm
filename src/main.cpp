@@ -1,15 +1,10 @@
-#include <iostream>
-
 #include <QApplication>
 
-#include "box_demo.h"
 #include "mainwindow.h"
 #include "version.h"
 
 int main(int argc, char* argv[])
 {
-    std::cout << "OCCT box volume: " << demoBoxVolume() << std::endl;
-
     QApplication app(argc, argv);
 
     MainWindow window;
