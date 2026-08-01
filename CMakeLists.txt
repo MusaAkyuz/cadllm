@@ -13,6 +13,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 add_executable(cadllm
     src/main.cpp
     src/version.cpp
+    src/mainwindow.cpp
 )
 
 target_link_libraries(cadllm PRIVATE Qt6::Widgets)
