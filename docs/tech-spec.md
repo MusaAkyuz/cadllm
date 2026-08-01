@@ -174,8 +174,8 @@ Kullanıcı ayarlardan sağlayıcı seçer ve API anahtarını girer. Anahtarlar
 |---|---|---|
 | **OCCT öğrenme eğrisi** | Yüksek — en büyük zaman kaybı burada | Küçük prototiplerle başla; `Handle_`, `TopExp_Explorer`, geometri/topoloji ayrımını erken öğren |
 | **Topological naming problem** | Yüksek — seçim/etiketleme ve LLM bağlamının temeli buna dayanır | OCAF `TNaming` kullan; kalıcı kimlik stratejisini MVP'de tasarla |
-| **Build & bağımlılık cehennemi** (özellikle Windows) | Orta-Yüksek | vcpkg/Conan; CI'da üç platformu erken kur |
-| **Viewer'ı Qt'ye gömme** (OpenGL context, pick olayları) | Orta | Bilinen `QOpenGLWidget + V3d_View` desenini takip et; hazır örnekleri incele |
+| **Build & bağımlılık cehennemi** (özellikle Windows) | Orta-Yüksek | ⚠️ Windows'ta aşıldı (M0): Qt resmi installer + OCCT vcpkg manifestosu. macOS/Linux henüz denenmedi; CI M1'de kurulacak |
+| **Viewer'ı Qt'ye gömme** (OpenGL context, pick olayları) | Orta | ✅ **Kapandı (M0)** — context'i OCCT sahipleniyor, Qt native pencereye dokunmuyor; §12.1'e bakınız |
 | **Cross-platform paketleme & macOS notarization** | Orta | Baştan CI/CD kur; imzalama sertifikalarını erken hazırla |
 | **OCCT thread güvenliği değil** | Orta | Ağır işlemleri (boolean, mesh) worker thread'de izole et; UI'yı dondurma |
 | **Büyük model performansı** (tessellation, seçim) | Orta | Deflection ayarı, LOD, seçim optimizasyonu |
@@ -188,11 +188,15 @@ Kullanıcı ayarlardan sağlayıcı seçer ve API anahtarını girer. Anahtarlar
 
 ## 9. Kilometre Taşları (Milestones)
 
-**M0 — Temel altyapı (1–2 hafta)**
-CMake + Qt + OCCT derleyen iskelet; boş pencere + boş viewport; üç platformda CI derlemesi.
+**M0 — Temel altyapı** — ✅ **Tamamlandı** (2026-08-01)
+CMake + Qt + OCCT derleyen iskelet; gömülü 3B viewport; yörünge/kaydırma/yakınlaştırma; yüzey seçimi ve alan/normal raporlama.
+
+Kapsam, plandaki "boş pencere + boş viewport"un ötesine bilinçli olarak taşındı: viewport, kamera ve seçim tek bir dikey dilim olarak yapıldı, çünkü §8'deki en büyük üç riskin (build zinciri, Qt/OCCT köprüsü, seçim olayları) hepsi ancak birlikte çalıştıklarında doğrulanabiliyordu.
+
+Yapılmayanlar M1'e taşındı: üç platformda CI derlemesi (şimdilik yalnızca Windows/MSVC doğrulandı).
 
 **M1 — Görüntüleyici + STEP import**
-`QOpenGLWidget` + V3d_View; STEP/IGES aç ve görüntüle; yörünge kamerası; temel seçim (face/edge/vertex vurgulama).
+STEP/IGES aç ve görüntüle; kenar/köşe seçim modları; çoklu seçim; cross-platform CI.
 
 **M2 — Temel 3B modelleme**
 Primitifler (kutu, silindir), extrude/revolve, boolean, fillet/chamfer; Command pattern + OCAF undo/redo.
@@ -229,13 +233,27 @@ Sağlayıcı soyutlaması → seçim-tabanlı bağlam → tool-calling deneyleri
 
 ---
 
-## 12. Açık Kararlar (Sonraki Adımlarda Netleşecek)
+## 12. Kararlar
+
+### 12.1 Verilen Kararlar
+
+**Qt Widgets (QML değil)** — M0'da karara bağlandı.
+OCCT viewer entegrasyonunun belgelenmiş yolu Widgets üzerinden geçiyor; QML ile OpenGL context paylaşımı belirgin şekilde daha fazla iş ve risk demek. Arayüz kod ile yazılıyor, Qt Design Studio bağımlılığı yok.
+
+**Viewport: düz `QWidget`, `QOpenGLWidget` değil** — M0'da karara bağlandı.
+İlk plan `QOpenGLWidget` idi, ama bu Qt ile OCCT'yi aynı OpenGL context'ini paylaşmaya zorluyor ve context durumunu kimin sıfırlayacağı belirsiz kalıyor — sürücüye göre değişen hatalar için verimli bir zemin. Bunun yerine OCCT'ye widget'ın native pencere tutamacı (Windows'ta `HWND`) veriliyor ve context'i tamamen OCCT sahipleniyor; Qt o alana hiç dokunmuyor. OCCT'nin kendi Qt örneklerinin izlediği yol da bu. §8'deki "Qt/OCCT viewer entegrasyonu" riski bu kararla kapandı.
+
+Windows'a özgü iki gereklilik ortaya çıktı: `WA_PaintOnScreen` tek başına widget'ı Qt'nin çizim döngüsünden düşürüyor, gerçek bir `HWND` garantisi için `WA_NativeWindow` şart; ve `showEvent` anında native pencere henüz varsayılan boyutta olduğundan viewport boyutu olay sırasına değil, fiili boyut karşılaştırmasına dayandırılmalı.
+
+**Bağımlılık yönetimi** — Qt sistem geneline resmi installer ile (6.8 LTS, MSVC 2022), OCCT ise `vcpkg.json` manifestosu ile projeye bağlı. CMake 4.x, bazı eski vcpkg portlarının (`gperf`) bildirdiği 3.5 öncesi `cmake_minimum_required` sürümlerini reddettiği için repoda bir overlay triplet tutuluyor.
+
+### 12.2 Açık Kararlar
 
 - LLM çıktı yöntemi: tool-calling vs DSL — §5.2 deney sonucuna göre.
 - Seçim/etiketleme UX'i: çekirdek geliştirilirken netleşecek.
 - Native dosya formatı: binary (`.xbf`) vs XML.
-- Qt Widgets vs Qt Quick (QML) tercih.
 - Parametrik geçmiş derinliği (tam parametrik ağaç mı, doğrudan modelleme mi).
+- Modül ayrımının ne zaman uygulanacağı: §4.2'deki altı kütüphane henüz tek bir hedef olarak duruyor; ayrım, komut sistemi M2'de gelirken yapılacak.
 
 ---
 

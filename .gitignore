@@ -35,6 +35,9 @@ qrc_*.cpp
 
 # ---- MSVC / Visual Studio ----
 .vs/
+
+# ---- VS Code (machine-specific paths, e.g. Qt install location) ----
+.vscode/
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
