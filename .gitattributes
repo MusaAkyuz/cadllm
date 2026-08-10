@@ -1,0 +1,8 @@
+# Normalize all text files to LF in the repository and on checkout,
+# regardless of the platform or editor used to create them. This avoids
+# CRLF/LF noise showing up as full-file diffs on Windows.
+* text=auto eol=lf
+
+# Windows-specific scripts should keep CRLF if any are ever added.
+*.bat text eol=crlf
+*.cmd text eol=crlf
